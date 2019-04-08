@@ -26,13 +26,15 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     private RecyclerView rvWeather;
     private ProgressBar pbLoadWeather;
     private WeatherAdapter weatherAdapter;
+    private int mode;
     private double latitude;
     private double longitude;
 
-    public static WeatherFragment newInstance(double latitude, double longitude) {
+    public static WeatherFragment newInstance(double latitude, double longitude, int mode) {
         WeatherFragment fragment = new WeatherFragment();
         fragment.latitude = latitude;
         fragment.longitude = longitude;
+        fragment.mode = mode;
         return fragment;
     }
 
@@ -46,7 +48,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
         initViews(view);
         presenter.onCreate();
-        presenter.loadWeather(latitude, longitude);
+        presenter.loadWeather(latitude, longitude, mode);
         return view;
     }
 
@@ -75,7 +77,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
             Snackbar
                     .make(viewRoot, getActivity().getResources().getString(R.string.repeat_text), Snackbar.LENGTH_INDEFINITE)
                     .setAction("Ok", view -> {
-                        presenter.loadWeather(latitude, longitude);
+                        presenter.loadWeather(latitude, longitude, mode);
                     }).show();
         }
     }

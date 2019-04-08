@@ -18,6 +18,6 @@ public interface WeatherContract {
 
     interface Presenter extends BasePresenter {
 
-        void loadWeather(double latitude, double longitude);
+        void loadWeather(double latitude, double longitude, int mode);
     }
 }

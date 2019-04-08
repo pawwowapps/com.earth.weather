@@ -11,6 +11,7 @@ import com.example.gav.mapweatherapplication.api.OpenWeatherApi;
 import com.example.gav.mapweatherapplication.features.map.MapActivity;
 import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRepository;
 import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRetrofitRepository;
+import com.example.gav.mapweatherapplication.utils.Constants;
 
 public class WeatherActivity extends AppCompatActivity {
 
@@ -26,8 +27,11 @@ public class WeatherActivity extends AppCompatActivity {
         setSupportActionBar(appToolbar);
 
         if (savedInstanceState == null) {
-            addWeatherFragment(getIntent().getDoubleExtra("lat", MapActivity.BASE_LATITUDE),
-                getIntent().getDoubleExtra("long", MapActivity.BASE_LONGITUDE));
+            addWeatherFragment(
+                getIntent().getDoubleExtra(Constants.LAT, Constants.BASE_LATITUDE),
+                getIntent().getDoubleExtra(Constants.LONG, Constants.BASE_LONGITUDE),
+                getIntent().getIntExtra(Constants.MODE, Constants.CURRENT)
+            );
         }
     }
 
@@ -35,9 +39,9 @@ public class WeatherActivity extends AppCompatActivity {
         appToolbar = findViewById(R.id.appToolbar);
     }
 
-    private void addWeatherFragment(double latitude, double longitude) {
+    private void addWeatherFragment(double latitude, double longitude, int mode) {
         OpenWeatherApi openWeatherApi = App.getApp(this).getOpenWeatherApi();
-        WeatherFragment weatherFragment = WeatherFragment.newInstance(latitude, longitude);
+        WeatherFragment weatherFragment = WeatherFragment.newInstance(latitude, longitude, mode);
         weatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), weatherFragment));
         getSupportFragmentManager()
                 .beginTransaction()

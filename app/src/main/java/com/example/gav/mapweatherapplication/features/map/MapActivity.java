@@ -1,70 +1,95 @@
 package com.example.gav.mapweatherapplication.features.map;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.gav.mapweatherapplication.R;
 import com.example.gav.mapweatherapplication.features.weather.WeatherActivity;
+import com.example.gav.mapweatherapplication.utils.Constants;
 import com.example.gav.mapweatherapplication.utils.KeyboardUtils;
-import com.example.gav.mapweatherapplication.utils.PermissionUtils;
+import com.example.gav.mapweatherapplication.utils.PermissionUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapClickListener,
-        GoogleMap.OnCameraIdleListener, OnMapReadyCallback, GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
+        OnMapReadyCallback, GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
+
+    @BindView(R.id.toolbar)
+    protected Toolbar toolbar;
+
+    @BindView(R.id.bottom_navigation)
+    protected BottomNavigationView bottomNavigationView;
 
     private GoogleMap mMap;
     private View mapView;
     private Marker marker;
-    private ImageButton ibWeather;
-    private ImageButton ibSearch;
-    private EditText etSearch;
-    public static final double BASE_LATITUDE = 50.431782;
-    public static final double BASE_LONGITUDE = 30.516382;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
         initViews();
-        initListener();
+        setUpBottomNavigation();
+    }
+
+    private void setUpBottomNavigation() {
+        bottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.action_current_weather:
+                        onWeatherClick(Constants.CURRENT);
+                        break;
+                    case R.id.action_five_days_weather:
+                        onWeatherClick(Constants.FIVE_DAYS);
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     private void initViews() {
-        ibWeather = findViewById(R.id.ibWeather);
-        ibSearch = findViewById(R.id.ibSearch);
-        etSearch = findViewById(R.id.etSearch);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -73,33 +98,12 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         }
     }
 
-    private void initListener() {
-        ibSearch.setOnClickListener(view -> {
-            String searchString = etSearch.getText().toString().trim();
-            if (searchString.length() > 3) {
-                searchRegion(searchString);
-            }
-        });
-
-        etSearch.setOnKeyListener((v, keyCode, event) -> {
-            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                    (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                String searchString = etSearch.getText().toString().trim();
-                if (searchString.length() > 3) {
-                    searchRegion(searchString);
-                }
-                return true;
-            }
-            return false;
-        });
-
-        ibWeather.setOnClickListener(view -> {
-            Intent intent = new Intent(MapActivity.this, WeatherActivity.class);
-            intent.putExtra("lat", marker.getPosition().latitude);
-            intent.putExtra("long", marker.getPosition().longitude);
-            startActivity(intent);
-
-        });
+    private void onWeatherClick(int mode) {
+        Intent intent = new Intent(MapActivity.this, WeatherActivity.class);
+        intent.putExtra(Constants.LAT, marker.getPosition().latitude);
+        intent.putExtra(Constants.LONG, marker.getPosition().longitude);
+        intent.putExtra(Constants.MODE, mode);
+        startActivity(intent);
     }
 
     private void searchRegion(String searchString) {
@@ -107,7 +111,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         Geocoder geocoder = new Geocoder(MapActivity.this);
         List<Address> list = new ArrayList<>();
         try {
-            list = geocoder.getFromLocationName(searchString, 1);
+            list = geocoder.getFromLocationName(searchString, 20);
         } catch (IOException e) {
             Toast.makeText(this, getString(R.string.error_search), Toast.LENGTH_SHORT).show();
         }
@@ -123,73 +127,83 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
-        mMap.setOnCameraIdleListener(this);
         mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
-        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(BASE_LATITUDE, BASE_LONGITUDE)));
+        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(Constants.BASE_LATITUDE, Constants.BASE_LONGITUDE)));
         defaultFocus();
         enableMyLocation();
     }
 
     private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-                    Manifest.permission.ACCESS_FINE_LOCATION, true);
-        } else if (mMap != null) {
-            mMap.setMyLocationEnabled(true);
-            mMap.setOnMyLocationButtonClickListener(this);
-            mMap.setOnMyLocationClickListener(this);
-
-            //change position location button
-            View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
-            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-            rlp.setMargins(0, 180, 50, 0);
-        }
-    }
-
-    public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = mMap.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 500;
-
-        final LinearInterpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-
-            }
-        });
+        if (!PermissionUtil.checkLocationPermissionsGranted(this)) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PermissionUtil.FINE_LOCATION_CODE);
+        } else
+            setupMap();
     }
 
     @Override
-    public void onCameraIdle() {
-        //Toast.makeText(this, mMap.getCamera Position().toString(), Toast.LENGTH_SHORT).show();
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PermissionUtil.FINE_LOCATION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setupMap();
+            } else {
+                Toast.makeText(this, getString(R.string.permission_required_toast), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        if (searchItem != null) {
+            searchView = (SearchView) searchItem.getActionView();
+        }
+        if (searchView != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(MapActivity.this.getComponentName()));
+        }
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String searchString = query.trim();
+                if (searchString.length() > 2) {
+                    searchRegion(searchString);
+                }
+                searchView.clearFocus();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setupMap() {
+        if (mMap == null)
+            return;
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+
+        //change position location button
+        View locationButton = ((View) mapView.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        rlp.setMargins(0, 10, rlp.width + 10, 0);
+
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                focusedOnPoint(new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()));
+                return false;
+            }
+        });
     }
 
     @Override
@@ -201,7 +215,6 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
     private void focusedOnPoint(LatLng latLng) {
         moveCamera(latLng);
         marker.setPosition(latLng);
-        //animateMarker(marker, latLng, false);
     }
 
     private void moveCamera(LatLng position) {

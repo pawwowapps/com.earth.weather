@@ -2,6 +2,7 @@ package com.example.gav.mapweatherapplication.features.weather;
 
 import com.example.gav.mapweatherapplication.features.weather.model.WeatherResponse;
 import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRepository;
+import com.example.gav.mapweatherapplication.utils.Constants;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -24,14 +25,24 @@ public class WeatherPresenter implements WeatherContract.Presenter{
     }
 
     @Override
-    public void loadWeather(double latitude, double longitude) {
+    public void loadWeather(double latitude, double longitude, int mode) {
         weatherView.showProgressbar();
-        compositeDisposable.add(
-                weatherRepository.getWeather(latitude, longitude)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this::onLoadWeather, weatherView::errorShowWeather)
-        );
+        if (mode == Constants.CURRENT) {
+            compositeDisposable.add(
+                    weatherRepository.getWeather(latitude, longitude)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(this::onLoadWeather, weatherView::errorShowWeather)
+            );
+        } else if (mode == Constants.FIVE_DAYS){
+            compositeDisposable.add(
+                    weatherRepository.getWeather(latitude, longitude)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(this::onLoadWeather, weatherView::errorShowWeather)
+            );
+        }
+
     }
 
     private void onLoadWeather(WeatherResponse weatherResponse) {
