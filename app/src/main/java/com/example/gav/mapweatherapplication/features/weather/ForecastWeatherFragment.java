@@ -2,7 +2,9 @@ package com.example.gav.mapweatherapplication.features.weather;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,14 +16,15 @@ import android.widget.ProgressBar;
 
 import com.example.gav.mapweatherapplication.R;
 import com.example.gav.mapweatherapplication.features.weather.model.ResultItem;
+import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Collections;
 import java.util.List;
 
-public class WeatherFragment extends Fragment implements WeatherContract.View{
+public class ForecastWeatherFragment extends Fragment implements WeatherContract.View{
 
-    public static final String TAG = "WeatherFragment";
+    public static final String TAG = "ForecastWeatherFragment";
     private WeatherContract.Presenter presenter;
     private RecyclerView rvWeather;
     private ProgressBar pbLoadWeather;
@@ -30,8 +33,8 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     private double latitude;
     private double longitude;
 
-    public static WeatherFragment newInstance(double latitude, double longitude, int mode) {
-        WeatherFragment fragment = new WeatherFragment();
+    public static ForecastWeatherFragment newInstance(double latitude, double longitude, int mode) {
+        ForecastWeatherFragment fragment = new ForecastWeatherFragment();
         fragment.latitude = latitude;
         fragment.longitude = longitude;
         fragment.mode = mode;
@@ -45,7 +48,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_weather, container, false);
+        View view = inflater.inflate(R.layout.fragment_forecast_weather, container, false);
         initViews(view);
         presenter.onCreate();
         presenter.loadWeather(latitude, longitude, mode);
@@ -68,6 +71,9 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     public void showWeather(List<ResultItem> resultItems) {
         weatherAdapter.setItems(resultItems);
     }
+
+    @Override
+    public void showWeather(CurrentWeatherResponse currentWeatherResponse) {}
 
     @Override
     public void errorShowWeather(Throwable throwable) {
@@ -94,9 +100,9 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
 
     @Override
     public void updateToolbar(String name) {
-        WeatherActivity activity = (WeatherActivity) getActivity();
+        FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.updateToolbarTitle(name);
+            activity.setTitle(name);
         }
     }
 

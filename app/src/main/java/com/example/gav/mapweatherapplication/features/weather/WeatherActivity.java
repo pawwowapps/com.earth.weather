@@ -2,27 +2,28 @@ package com.example.gav.mapweatherapplication.features.weather;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import android.os.Bundle;
 
 import com.example.gav.mapweatherapplication.App;
 import com.example.gav.mapweatherapplication.R;
 import com.example.gav.mapweatherapplication.api.OpenWeatherApi;
-import com.example.gav.mapweatherapplication.features.map.MapActivity;
-import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRepository;
+import com.example.gav.mapweatherapplication.features.weather.repository.CurrentWeatherFragment;
 import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRetrofitRepository;
 import com.example.gav.mapweatherapplication.utils.Constants;
 
 public class WeatherActivity extends AppCompatActivity {
 
-    private Toolbar appToolbar;
+    @BindView(R.id.appToolbar)
+    protected Toolbar appToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-
-        initViews();
+        ButterKnife.bind(this);
 
         setSupportActionBar(appToolbar);
 
@@ -35,18 +36,25 @@ public class WeatherActivity extends AppCompatActivity {
         }
     }
 
-    private void initViews() {
-        appToolbar = findViewById(R.id.appToolbar);
-    }
 
     private void addWeatherFragment(double latitude, double longitude, int mode) {
         OpenWeatherApi openWeatherApi = App.getApp(this).getOpenWeatherApi();
-        WeatherFragment weatherFragment = WeatherFragment.newInstance(latitude, longitude, mode);
-        weatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), weatherFragment));
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.llRoot, weatherFragment, WeatherFragment.TAG)
-                .commit();
+        if (mode == Constants.FIVE_DAYS) {
+            ForecastWeatherFragment forecastWeatherFragment = ForecastWeatherFragment.newInstance(latitude, longitude, mode);
+            forecastWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), forecastWeatherFragment));
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.flRoot, forecastWeatherFragment, ForecastWeatherFragment.TAG)
+                    .commit();
+        } else if (mode == Constants.CURRENT) {
+            CurrentWeatherFragment currentWeatherFragment = CurrentWeatherFragment.newInstance(latitude, longitude, mode);
+            currentWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), currentWeatherFragment));
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.flRoot, currentWeatherFragment, CurrentWeatherFragment.TAG)
+                    .commit();
+        }
+
     }
 
     public void updateToolbarTitle(String name) {

@@ -11,6 +11,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class App extends Application {
     private OpenWeatherApi openWeatherApi;
+    private static Context context;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if (context == null) {
+            context = getApplicationContext();
+        }
+    }
+
     public OpenWeatherApi getOpenWeatherApi() {
         if (openWeatherApi == null) {
             Retrofit retrofit = new Retrofit.Builder()
@@ -25,5 +35,9 @@ public class App extends Application {
 
     public static App getApp(Context context) {
         return ((App) context.getApplicationContext());
+    }
+
+    public static Context getContext() {
+        return context;
     }
 }

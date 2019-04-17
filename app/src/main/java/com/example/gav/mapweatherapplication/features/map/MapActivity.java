@@ -13,11 +13,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.gav.mapweatherapplication.App;
 import com.example.gav.mapweatherapplication.R;
-import com.example.gav.mapweatherapplication.features.weather.WeatherActivity;
+import com.example.gav.mapweatherapplication.api.OpenWeatherApi;
+import com.example.gav.mapweatherapplication.features.weather.ForecastWeatherFragment;
+import com.example.gav.mapweatherapplication.features.weather.WeatherPresenter;
+import com.example.gav.mapweatherapplication.features.weather.repository.CurrentWeatherFragment;
+import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRetrofitRepository;
 import com.example.gav.mapweatherapplication.utils.Constants;
 import com.example.gav.mapweatherapplication.utils.KeyboardUtils;
 import com.example.gav.mapweatherapplication.utils.PermissionUtil;
@@ -40,6 +46,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -52,12 +59,18 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
     @BindView(R.id.bottom_navigation)
     protected BottomNavigationView bottomNavigationView;
 
+    @BindView(R.id.flContent)
+    protected FrameLayout flContent;
+
     private GoogleMap mMap;
     private View mapView;
     private Marker marker;
 
+    private Fragment currentFragment;
+    private int currentMode = -1;
 
     private SearchView searchView;
+    private MenuItem searchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +112,41 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
     }
 
     private void onWeatherClick(int mode) {
-        Intent intent = new Intent(MapActivity.this, WeatherActivity.class);
-        intent.putExtra(Constants.LAT, marker.getPosition().latitude);
-        intent.putExtra(Constants.LONG, marker.getPosition().longitude);
-        intent.putExtra(Constants.MODE, mode);
-        startActivity(intent);
+        if (currentMode == mode)
+            return;
+        mapView.setVisibility(View.GONE);
+        searchItem.setVisible(false);
+        searchView.setVisibility(View.GONE);
+        addWeatherFragment(marker.getPosition().latitude, marker.getPosition().longitude, mode);
+    }
+
+    private void addWeatherFragment(double latitude, double longitude, int mode) {
+        OpenWeatherApi openWeatherApi = App.getApp(this).getOpenWeatherApi();
+        currentMode = mode;
+        if (currentFragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .commitAllowingStateLoss();
+        }
+        if (mode == Constants.FIVE_DAYS) {
+            ForecastWeatherFragment forecastWeatherFragment = ForecastWeatherFragment.newInstance(latitude, longitude, mode);
+            currentFragment = forecastWeatherFragment;
+            forecastWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), forecastWeatherFragment));
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.flContent, forecastWeatherFragment, ForecastWeatherFragment.TAG)
+                    .commitAllowingStateLoss();
+        } else if (mode == Constants.CURRENT) {
+            CurrentWeatherFragment currentWeatherFragment = CurrentWeatherFragment.newInstance(latitude, longitude, mode);
+            currentFragment = currentWeatherFragment;
+            currentWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), currentWeatherFragment));
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.flContent, currentWeatherFragment, CurrentWeatherFragment.TAG)
+                    .commitAllowingStateLoss();
+        }
+
     }
 
     private void searchRegion(String searchString) {
@@ -157,7 +200,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchItem = menu.findItem(R.id.action_search);
         if (searchItem != null) {
             searchView = (SearchView) searchItem.getActionView();
         }
@@ -234,5 +277,25 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
     @Override
     public boolean onMyLocationButtonClick() {
         return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentFragment == null)
+            super.onBackPressed();
+        else {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .commitAllowingStateLoss();
+            mapView.setVisibility(View.VISIBLE);
+            searchView.setVisibility(View.VISIBLE);
+            currentFragment = null;
+            setTitle(R.string.app_name);
+            searchItem.setVisible(true);
+            currentMode = -1;
+        }
+
+
     }
 }

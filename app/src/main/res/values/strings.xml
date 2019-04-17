@@ -17,5 +17,14 @@
     <string name="current_weather">Current</string>
     <string name="five_days_weather">5 days</string>
     <string name="two_weeks_weather">2 weeks</string>
+    <string name="overcast">Overcast</string>
+    <string name="precipitation">Precipitation</string>
+    <string name="wind">Wind</string>
+    <string name="humadity">Humadity</string>
+    <string name="celsium" translatable="false">\u00B0</string>
+    <string name="percent" translatable="false">%</string>
+    <string name="ms">m/s</string>
+    <string name="mm">mm</string>
+    <string name="pressure">Pressure</string>
 
 </resources>

@@ -3,7 +3,7 @@ package com.example.gav.mapweatherapplication.features.weather.model;
 import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
-public class WeatherResponse{
+public class ForecastWeatherResponse {
 
 	@SerializedName("city")
 	private City city;

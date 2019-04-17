@@ -1,6 +1,6 @@
 package com.example.gav.mapweatherapplication.api;
 
-import com.example.gav.mapweatherapplication.features.weather.model.WeatherResponse;
+import com.example.gav.mapweatherapplication.features.weather.model.ForecastWeatherResponse;
 import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
 
 import io.reactivex.Observable;
@@ -11,7 +11,7 @@ public interface OpenWeatherApi {
     String API_KEY = "e276a2c6dde7a940cac239eddbb2738b";
 
     @GET("/data/2.5//forecast")
-    Observable<WeatherResponse> getWeatherForecast(
+    Observable<ForecastWeatherResponse> getWeatherForecast(
             @Query("lat") double lat,
             @Query("lon") double lon,
             @Query("APPID") String apiKey,

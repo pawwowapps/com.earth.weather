@@ -1,6 +1,9 @@
 package com.example.gav.mapweatherapplication.features.weather;
 
-import com.example.gav.mapweatherapplication.features.weather.model.WeatherResponse;
+import com.example.gav.mapweatherapplication.App;
+import com.example.gav.mapweatherapplication.R;
+import com.example.gav.mapweatherapplication.features.weather.model.ForecastWeatherResponse;
+import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
 import com.example.gav.mapweatherapplication.features.weather.repository.WeatherRepository;
 import com.example.gav.mapweatherapplication.utils.Constants;
 
@@ -29,25 +32,31 @@ public class WeatherPresenter implements WeatherContract.Presenter{
         weatherView.showProgressbar();
         if (mode == Constants.CURRENT) {
             compositeDisposable.add(
-                    weatherRepository.getWeather(latitude, longitude)
+                    weatherRepository.getCurrentWeather(latitude, longitude)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(this::onLoadWeather, weatherView::errorShowWeather)
+                            .subscribe(this::onLoadCurrentWeather, weatherView::errorShowWeather)
             );
         } else if (mode == Constants.FIVE_DAYS){
             compositeDisposable.add(
-                    weatherRepository.getWeather(latitude, longitude)
+                    weatherRepository.getForecastWeather(latitude, longitude)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(this::onLoadWeather, weatherView::errorShowWeather)
+                            .subscribe(this::onLoadForecastWeather, weatherView::errorShowWeather)
             );
         }
 
     }
 
-    private void onLoadWeather(WeatherResponse weatherResponse) {
-        weatherView.showWeather(weatherResponse.getList());
-        weatherView.updateToolbar(weatherResponse.getCity().getName());
+    private void onLoadForecastWeather(ForecastWeatherResponse forecastWeatherResponse) {
+        weatherView.showWeather(forecastWeatherResponse.getList());
+        weatherView.updateToolbar(forecastWeatherResponse.getCity().getName());
+        weatherView.hideProgressbar();
+    }
+
+    private void onLoadCurrentWeather(CurrentWeatherResponse currentWeatherResponse) {
+        weatherView.showWeather(currentWeatherResponse);
+        weatherView.updateToolbar(App.getContext().getString(R.string.app_name));
         weatherView.hideProgressbar();
     }
 
