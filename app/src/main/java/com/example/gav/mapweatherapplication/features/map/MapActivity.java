@@ -135,6 +135,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
             forecastWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), forecastWeatherFragment));
             getSupportFragmentManager()
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
                     .add(R.id.flContent, forecastWeatherFragment, ForecastWeatherFragment.TAG)
                     .commitAllowingStateLoss();
         } else if (mode == Constants.CURRENT) {
@@ -143,6 +144,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
             currentWeatherFragment.setPresenter(new WeatherPresenter(new WeatherRetrofitRepository(openWeatherApi), currentWeatherFragment));
             getSupportFragmentManager()
                     .beginTransaction()
+                    .setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit, R.anim.enter, R.anim.exit)
                     .add(R.id.flContent, currentWeatherFragment, CurrentWeatherFragment.TAG)
                     .commitAllowingStateLoss();
         }
@@ -281,7 +283,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
 
     @Override
     public void onBackPressed() {
-        if (currentFragment == null)
+        if (getSupportFragmentManager().findFragmentByTag(CurrentWeatherFragment.TAG) == null
+                && getSupportFragmentManager().findFragmentByTag(ForecastWeatherFragment.TAG) == null)
             super.onBackPressed();
         else {
             getSupportFragmentManager()
@@ -298,4 +301,22 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
 
 
     }
+
+    /*@Override
+    protected void onStop() {
+        super.onStop();
+        if (currentFragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .commitAllowingStateLoss();
+        }
+        mapView.setVisibility(View.VISIBLE);
+        searchView.setVisibility(View.VISIBLE);
+        currentFragment = null;
+        setTitle(R.string.app_name);
+        searchItem.setVisible(true);
+        currentMode = -1;
+
+    }*/
 }
