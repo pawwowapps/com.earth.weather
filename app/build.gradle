@@ -1,15 +1,16 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 def final BUTTER_KNIFE_VER = '10.1.0'
 
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.example.gav.mapweatherapplication"
+        applicationId "com.earth.weather"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 3
-        versionName "3.0"
+        versionCode 5
+        versionName "5.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -66,4 +67,5 @@ dependencies {
     implementation "com.jakewharton:butterknife:${BUTTER_KNIFE_VER}"
     annotationProcessor "com.jakewharton:butterknife-compiler:${BUTTER_KNIFE_VER}"
 
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 }

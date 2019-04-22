@@ -42,6 +42,10 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".features.weather.WeatherActivity"></activity>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="461c3ac7f7b44cd66eb91e29758236ea114b6c8b" />
     </application>
 
 </manifest>

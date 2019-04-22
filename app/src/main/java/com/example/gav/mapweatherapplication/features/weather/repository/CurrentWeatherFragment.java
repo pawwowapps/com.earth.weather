@@ -83,24 +83,16 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
     public void showWeather(CurrentWeatherResponse currentWeatherResponse) {
         tvLocation.setText(currentWeatherResponse.getName());
         tvTemperature.setText(
-                Integer.toString(
-                        (int)Math.round(currentWeatherResponse.getMain().getTemp())
-                ) + getString(R.string.celsium)
+                (int)Math.round(currentWeatherResponse.getMain().getTemp()) + getString(R.string.celsium)
         );
         tvWind.setText(
-                Double.toString(
-                        currentWeatherResponse.getWind().getSpeed()
-                ) + getString(R.string.ms)
+                (int)Math.floor(currentWeatherResponse.getWind().getSpeed()) + getString(R.string.ms)
         );
         tvHumidity.setText(
-                Integer.toString(
-                        currentWeatherResponse.getMain().getHumidity()
-                ) + getString(R.string.percent)
+                currentWeatherResponse.getMain().getHumidity() + getString(R.string.percent)
         );
         tvPressure.setText(
-                Integer.toString(
-                        (int)currentWeatherResponse.getMain().getPressure()
-                ) + getString(R.string.mm)
+                (int)currentWeatherResponse.getMain().getPressure() + getString(R.string.mm)
         );
     }
 

@@ -29,8 +29,8 @@ public class WeatherActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             addWeatherFragment(
-                getIntent().getDoubleExtra(Constants.LAT, Constants.BASE_LATITUDE),
-                getIntent().getDoubleExtra(Constants.LONG, Constants.BASE_LONGITUDE),
+                getIntent().getDoubleExtra(Constants.LAT, App.getCurrentUser().getLastLatitude()),
+                getIntent().getDoubleExtra(Constants.LONG, App.getCurrentUser().getLastLongitude()),
                 getIntent().getIntExtra(Constants.MODE, Constants.CURRENT)
             );
         }

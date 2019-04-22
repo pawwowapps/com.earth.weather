@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.gav.mapweatherapplication.App;
 import com.example.gav.mapweatherapplication.R;
+import com.example.gav.mapweatherapplication.User;
 import com.example.gav.mapweatherapplication.api.OpenWeatherApi;
 import com.example.gav.mapweatherapplication.features.weather.ForecastWeatherFragment;
 import com.example.gav.mapweatherapplication.features.weather.WeatherPresenter;
@@ -173,7 +174,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
         mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
-        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(Constants.BASE_LATITUDE, Constants.BASE_LONGITUDE)));
+        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(App.getCurrentUser().getLastLatitude(), App.getCurrentUser().getLastLongitude())));
         defaultFocus();
         enableMyLocation();
     }
@@ -253,6 +254,9 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
 
     @Override
     public void onMapClick(LatLng latLng) {
+        App.getCurrentUser().setLastLatitude(latLng.latitude);
+        App.getCurrentUser().setLastLongitude(latLng.longitude);
+        App.getCurrentUser().save();
         focusedOnPoint(latLng);
 
     }
