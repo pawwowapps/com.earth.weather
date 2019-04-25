@@ -102,7 +102,7 @@ public class ForecastWeatherFragment extends Fragment implements WeatherContract
     public void updateToolbar(String name) {
         FragmentActivity activity = getActivity();
         if (activity != null) {
-            activity.setTitle(name);
+            activity.setTitle(name.isEmpty()?getContext().getString(R.string.app_name):name);
         }
     }
 

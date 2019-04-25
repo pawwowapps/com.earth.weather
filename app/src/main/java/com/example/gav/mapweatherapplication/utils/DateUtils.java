@@ -39,4 +39,51 @@ public class DateUtils {
         }
         return result.toString();
     }
+
+    public static String getMonthToString(Context context, long unixTime) {
+        StringBuilder result = new StringBuilder();
+        Date date = new Date(unixTime * 1000);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        switch (calendar.get(Calendar.MONTH)) {
+            case Calendar.JANUARY:
+                result.append(context.getString(R.string.january));
+                break;
+            case Calendar.FEBRUARY:
+                result.append(context.getString(R.string.february));
+                break;
+            case Calendar.MARCH:
+                result.append(context.getString(R.string.march));
+                break;
+            case Calendar.APRIL:
+                result.append(context.getString(R.string.april));
+                break;
+            case Calendar.MAY:
+                result.append(context.getString(R.string.may));
+                break;
+            case Calendar.JUNE:
+                result.append(context.getString(R.string.june));
+                break;
+            case Calendar.JULY:
+                result.append(context.getString(R.string.july));
+                break;
+            case Calendar.AUGUST:
+                result.append(context.getString(R.string.august));
+                break;
+            case Calendar.SEPTEMBER:
+                result.append(context.getString(R.string.september));
+                break;
+            case Calendar.OCTOBER:
+                result.append(context.getString(R.string.october));
+                break;
+            case Calendar.NOVEMBER:
+                result.append(context.getString(R.string.november));
+                break;
+            case Calendar.DECEMBER:
+                result.append(context.getString(R.string.december));
+                break;
+        }
+        return result.toString();
+    }
 }

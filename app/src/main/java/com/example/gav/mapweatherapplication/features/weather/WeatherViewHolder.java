@@ -8,7 +8,10 @@ import com.bumptech.glide.Glide;
 import com.example.gav.mapweatherapplication.R;
 import com.example.gav.mapweatherapplication.features.weather.model.ResultItem;
 import com.example.gav.mapweatherapplication.utils.DateUtils;
+import com.example.gav.mapweatherapplication.utils.WeatherDescriptionProvider;
 
+
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,9 +56,10 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
         String dtTxt = resultsItem.getDtTxt();
         String dtTxtWithoutYear = dtTxt.substring(5);
         String dayOfWeek = DateUtils.getDayOfWeek(itemView.getContext(), resultsItem.getDt());
-        String month = dtTxtWithoutYear
-                .substring(0, 5)
+        String day = dtTxtWithoutYear
+                .substring(3, 5)
                 .replace("-", ".");
+        String month = DateUtils.getMonthToString(itemView.getContext(), resultsItem.getDt());
         String hour = dtTxtWithoutYear
                 .substring(dtTxtWithoutYear.length() - 8, dtTxtWithoutYear.length() - 3);
 
@@ -63,11 +67,19 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
                 .append(dayOfWeek)
                 .append(", ")
                 .append(month)
+                .append(", ")
+                .append(day)
                 .append("\n")
                 .append(hour)
                 .toString();
         tvDay.setText(resultString);
-        tvDescription.setText(resultsItem.getWeather().get(0).getDescription());
+        tvDescription.setText(
+                WeatherDescriptionProvider
+                        .getTranslatedDescription(
+                                itemView.getContext(),
+                                resultsItem.getWeather().get(0).getDescription()
+                        )
+        );
 
     }
 

@@ -1,5 +1,7 @@
 package com.example.gav.mapweatherapplication.features.weather.repository;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +13,12 @@ import com.example.gav.mapweatherapplication.R;
 import com.example.gav.mapweatherapplication.features.weather.WeatherContract;
 import com.example.gav.mapweatherapplication.features.weather.model.ResultItem;
 import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
+import com.example.gav.mapweatherapplication.utils.WeatherDescriptionProvider;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,6 +48,9 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
 
     @BindView(R.id.tvPressure)
     protected TextView tvPressure;
+
+    @BindView(R.id.tvDescription)
+    protected TextView tvDescription;
 
     @BindView(R.id.tvWind)
     protected TextView tvWind;
@@ -81,7 +89,21 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
 
     @Override
     public void showWeather(CurrentWeatherResponse currentWeatherResponse) {
-        tvLocation.setText(currentWeatherResponse.getName());
+        String cityName = "";
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            cityName = geocoder.getFromLocation(
+                            currentWeatherResponse.getCoord().getLat(),
+                            currentWeatherResponse.getCoord().getLon(),
+                            1
+                    )
+                    .get(0)
+                    .getLocality();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        tvLocation.setText(cityName.isEmpty()?currentWeatherResponse.getName():cityName);
         tvTemperature.setText(
                 (int)Math.round(currentWeatherResponse.getMain().getTemp()) + getString(R.string.celsium)
         );
@@ -94,6 +116,7 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
         tvPressure.setText(
                 (int)currentWeatherResponse.getMain().getPressure() + getString(R.string.mm)
         );
+        tvDescription.setText(WeatherDescriptionProvider.getTranslatedDescription(getContext(), currentWeatherResponse.getWeather().get(0).getDescription()));
     }
 
     @Override
