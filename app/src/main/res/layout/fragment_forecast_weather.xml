@@ -16,7 +16,7 @@
         android:visibility="invisible"
         android:id="@+id/pbLoadWeather"
         android:indeterminateDrawable="@drawable/progress"
-        android:layout_width="88dp"
-        android:layout_height="88dp" />
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
 
 </FrameLayout>

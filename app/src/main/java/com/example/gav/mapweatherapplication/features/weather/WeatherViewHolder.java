@@ -20,6 +20,7 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView ivIcon;
     private TextView tvDay;
+    private TextView tvHour;
     private TextView tvDescription;
     private TextView tvFromTemp;
     private TextView tvToTemp;
@@ -32,6 +33,7 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
     private void initViews(View itemView) {
         ivIcon = itemView.findViewById(R.id.ivIcon);
         tvDay = itemView.findViewById(R.id.tvDay);
+        tvHour = itemView.findViewById(R.id.tvHour);
         tvDescription = itemView.findViewById(R.id.tvDescription);
         tvFromTemp = itemView.findViewById(R.id.tvFromTemp);
         tvToTemp = itemView.findViewById(R.id.tvToTemp);
@@ -63,16 +65,15 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
         String hour = dtTxtWithoutYear
                 .substring(dtTxtWithoutYear.length() - 8, dtTxtWithoutYear.length() - 3);
 
-        String resultString = new StringBuilder()
+        String resultDayString = new StringBuilder()
                 .append(dayOfWeek)
                 .append(", ")
                 .append(month)
                 .append(", ")
                 .append(day)
-                .append("\n")
-                .append(hour)
                 .toString();
-        tvDay.setText(resultString);
+        tvDay.setText(resultDayString);
+        tvHour.setText(hour);
         tvDescription.setText(
                 WeatherDescriptionProvider
                         .getTranslatedDescription(

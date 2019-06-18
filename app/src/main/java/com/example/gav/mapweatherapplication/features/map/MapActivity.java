@@ -161,6 +161,7 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         } catch (IOException e) {
             Toast.makeText(this, getString(R.string.error_search), Toast.LENGTH_SHORT).show();
         }
+        invalidateOptionsMenu();
         if (list.size() > 0) {
             Address address = list.get(0);
             focusedOnPoint(new LatLng(address.getLatitude(), address.getLongitude()));
@@ -246,6 +247,8 @@ public class MapActivity extends AppCompatActivity implements GoogleMap.OnMapCli
         mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
+                if(mMap.getMyLocation() == null)
+                    return false;
                 focusedOnPoint(new LatLng(mMap.getMyLocation().getLatitude(), mMap.getMyLocation().getLongitude()));
                 return false;
             }

@@ -14,6 +14,8 @@ import com.example.gav.mapweatherapplication.features.weather.WeatherContract;
 import com.example.gav.mapweatherapplication.features.weather.model.ResultItem;
 import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
 import com.example.gav.mapweatherapplication.utils.WeatherDescriptionProvider;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
@@ -58,6 +60,9 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
     @BindView(R.id.pbLoadWeather)
     protected ProgressBar pbLoadWeather;
 
+    @BindView(R.id.adView)
+    protected AdView adView;
+
     public static CurrentWeatherFragment newInstance(double latitude, double longitude, int mode) {
         CurrentWeatherFragment fragment = new CurrentWeatherFragment();
         fragment.latitude = latitude;
@@ -78,7 +83,13 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
         initViews(view);
         presenter.onCreate();
         presenter.loadWeather(latitude, longitude, mode);
+        loadBanner();
         return view;
+    }
+
+    private void loadBanner() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
     }
 
     private void initViews(View view) {
@@ -93,17 +104,24 @@ public class CurrentWeatherFragment extends Fragment implements WeatherContract.
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         List<Address> addresses = null;
         try {
-            cityName = geocoder.getFromLocation(
-                            currentWeatherResponse.getCoord().getLat(),
-                            currentWeatherResponse.getCoord().getLon(),
-                            1
-                    )
-                    .get(0)
-                    .getLocality();
+            addresses = geocoder.getFromLocation(
+                    currentWeatherResponse.getCoord().getLat(),
+                    currentWeatherResponse.getCoord().getLon(),
+                    1
+            );
+            if (addresses.size() > 0) {
+                String locality = addresses
+                        .get(0)
+                        .getLocality();
+                if (locality != null) {
+                    cityName = locality;
+                }
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        tvLocation.setText(cityName.isEmpty()?currentWeatherResponse.getName():cityName);
+        tvLocation.setText(cityName.isEmpty() ?currentWeatherResponse.getName():cityName);
         tvTemperature.setText(
                 (int)Math.round(currentWeatherResponse.getMain().getTemp()) + getString(R.string.celsium)
         );

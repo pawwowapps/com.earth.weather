@@ -12,7 +12,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="32dp"
+        android:layout_marginLeft="20dp"
         android:scaleType="fitCenter"
         android:src="@drawable/icon_cloud"/>
 
@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
         android:layout_marginLeft="32dp"
         android:orientation="vertical">
 
@@ -30,7 +30,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Today"
-            android:textSize="20sp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tvHour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Today"
+            android:textSize="18sp"
             android:textColor="@android:color/black" />
 
         <TextView

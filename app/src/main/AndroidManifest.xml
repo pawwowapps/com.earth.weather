@@ -20,6 +20,9 @@
         <meta-data
             android:name="android.app.default_searchable"
             android:value="features.map.MapActivity" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9478157148710436~6501657265"/>
         <activity
             android:name=".features.map.MapActivity"
             android:configChanges="orientation"

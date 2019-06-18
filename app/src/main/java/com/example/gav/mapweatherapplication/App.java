@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.gav.mapweatherapplication.api.OpenWeatherApi;
+import com.google.android.gms.ads.MobileAds;
 
 import io.fabric.sdk.android.Fabric;
 import retrofit2.Retrofit;
@@ -23,6 +24,8 @@ public class App extends Application {
         if (context == null) {
             context = getApplicationContext();
         }
+
+        MobileAds.initialize(getContext(), "ca-app-pub-9478157148710436~6501657265");
     }
 
     public OpenWeatherApi getOpenWeatherApi() {

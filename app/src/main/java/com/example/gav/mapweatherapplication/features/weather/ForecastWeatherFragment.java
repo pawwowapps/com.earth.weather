@@ -1,5 +1,7 @@
 package com.example.gav.mapweatherapplication.features.weather;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,8 +21,10 @@ import com.example.gav.mapweatherapplication.features.weather.model.ResultItem;
 import com.example.gav.mapweatherapplication.features.weather.model.current.CurrentWeatherResponse;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class ForecastWeatherFragment extends Fragment implements WeatherContract.View{
 
@@ -102,6 +106,24 @@ public class ForecastWeatherFragment extends Fragment implements WeatherContract
     public void updateToolbar(String name) {
         FragmentActivity activity = getActivity();
         if (activity != null) {
+            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocation(
+                        latitude,
+                        longitude,
+                        1
+                );
+                if (addresses.size() > 0) {
+                    String locality = addresses
+                            .get(0)
+                            .getLocality();
+                    if (locality != null) {
+                        name = locality;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             activity.setTitle(name.isEmpty()?getContext().getString(R.string.app_name):name);
         }
     }
